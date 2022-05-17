@@ -420,46 +420,6 @@ files:
         }
     }
   learner_created: false
-- name: src/platform/model/Code.java
-  visible: true
-  text: |
-    package platform.model;
-
-    import com.fasterxml.jackson.annotation.JsonFormat;
-
-    import java.time.LocalDateTime;
-    import java.time.format.DateTimeFormatter;
-
-    public class Code {
-      private String code;
-      @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss")
-      private LocalDateTime date;
-
-      public Code() {
-      }
-
-      public Code(String code) {
-        this.code = code;
-        this.date = LocalDateTime.now();
-      }
-
-      public String getCode() {
-        return code;
-      }
-
-      public void setCode(String code) {
-        this.code = code;
-      }
-
-      public String getDate() {
-        return date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
-      }
-
-      public void setDate(LocalDateTime date) {
-        this.date = date;
-      }
-    }
-  learner_created: true
 - name: src/platform/web/CodeController.java
   visible: true
   text: |
@@ -533,32 +493,6 @@ files:
         return ResponseEntity.ok("{}");
       }
 
-    }
-  learner_created: true
-- name: src/platform/services/CodeService.java
-  visible: true
-  text: |
-    package platform.services;
-
-    import org.springframework.stereotype.Service;
-    import platform.model.Code;
-
-    import java.time.LocalDateTime;
-
-    @Service
-    public class CodeService {
-
-      private Code code = new Code("public static void main(String[] args) {\n" +
-          "    SpringApplication.run(CodeSharingPlatform.class, args);\n}");
-
-      public Code getCode() {
-        return code;
-      }
-
-      public void setCode(Code code) {
-        code.setDate(LocalDateTime.now());
-        this.code = code;
-      }
     }
   learner_created: true
 - name: src/resources/static/js/script.js
@@ -641,6 +575,78 @@ files:
     </body>
     </html>
   learner_created: true
+- name: src/platform/code/CodeRepository.java
+  visible: true
+  learner_created: true
+- name: src/platform/code/Code.java
+  visible: true
+  text: |
+    package platform.model;
+
+    import com.fasterxml.jackson.annotation.JsonFormat;
+
+    import java.time.LocalDateTime;
+    import java.time.format.DateTimeFormatter;
+
+    public class Code {
+      private String code;
+      @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss")
+      private LocalDateTime date;
+
+      public Code() {
+      }
+
+      public Code(String code) {
+        this.code = code;
+        this.date = LocalDateTime.now();
+      }
+
+      public String getCode() {
+        return code;
+      }
+
+      public void setCode(String code) {
+        this.code = code;
+      }
+
+      public String getDate() {
+        return date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+      }
+
+      public void setDate(LocalDateTime date) {
+        this.date = date;
+      }
+    }
+  learner_created: true
+- name: src/platform/code/CodeService.java
+  visible: true
+  text: |
+    package platform.services;
+
+    import org.springframework.stereotype.Service;
+    import platform.model.Code;
+
+    import java.time.LocalDateTime;
+
+    @Service
+    public class CodeService {
+
+      private Code code = new Code("public static void main(String[] args) {\n" +
+          "    SpringApplication.run(CodeSharingPlatform.class, args);\n}");
+
+      public Code getCode() {
+        return code;
+      }
+
+      public void setCode(Code code) {
+        code.setDate(LocalDateTime.now());
+        this.code = code;
+      }
+    }
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/11029#comment
-status: Unchecked
-record: -1
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Tue, 17 May 2022 05:51:32 UTC
+record: 3

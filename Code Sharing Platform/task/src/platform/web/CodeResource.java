@@ -1,12 +1,9 @@
 package platform.web;
 
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import platform.model.Code;
-import platform.services.CodeService;
-
-import java.util.Map;
+import platform.code.Code;
+import platform.code.CodeService;
 
 @RestController
 @RequestMapping("/api/code")
@@ -18,15 +15,18 @@ public class CodeResource {
     this.codeService = codeService;
   }
 
-  @GetMapping
-  public ResponseEntity<?> getCode() {
-    return ResponseEntity.ok(this.codeService.getCode());
+  @GetMapping("{id}")
+  public ResponseEntity<?> getCode(@PathVariable("id") long id) {
+    return ResponseEntity.ok(this.codeService.getCodeById(id));
+  }
+  @GetMapping("latest")
+  public ResponseEntity<?> getLatestCode() {
+    return ResponseEntity.ok(this.codeService.getLatestCodeSnippets());
   }
 
   @PostMapping("/new")
   public ResponseEntity<?> submitCode(@RequestBody Code code) {
-    this.codeService.setCode(code);
-    return ResponseEntity.ok("{}");
+    return ResponseEntity.ok(this.codeService.createNewCode(code));
   }
 
 }
