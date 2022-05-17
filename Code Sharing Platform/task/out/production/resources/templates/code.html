@@ -5,8 +5,8 @@
     <title>Code</title>
 </head>
 <body>
-    <pre th:text="${code}">
-
-    </pre>
+    <span id="load_date" th:text="${code.date}"></span>
+    <textarea id="code_snippet" th:text="${code.code}">
+    </textarea>
 </body>
 </html>
