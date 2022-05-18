@@ -10,6 +10,7 @@ import platform.code.CodeService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -23,7 +24,7 @@ public class CodeController {
   }
 
   @GetMapping("/{id}")
-  public String getCode(@PathVariable long id, Model model) {
+  public String getCode(@PathVariable UUID id, Model model) {
     model.addAttribute("title", "Code");
     model.addAttribute("code", List.of(this.codeService.getCodeById(id)));
     return "code";

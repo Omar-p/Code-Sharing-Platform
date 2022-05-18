@@ -7,12 +7,19 @@
 </head>
 <body>
     <div th:each="c : ${code}">
-        <span id="load_date" th:text="${#temporals.format(c.date, 'yyyy/MM/dd HH:mm:ss')}"></span>
+        <span id="load_date" th:text="${c.get('date')}"></span>
+        <br>
+        <span id="views_restriction" th:if="${c.get('isViewRestricted') != null and c.get('isViewRestricted') and c.get('views') >= 0}"
+              th:text="${c.get('views') + ' more views allowed'}"></span>
+        <br>
+        <span id="time_restriction" th:if="${c.get('isTimeRestricted') != null and c.get('isTimeRestricted') and c.get('time') > 0}"
+              th:text="${'The code will be available for ' +
+              c.get('time') + 'seconds'}"></span>
 
-            <pre id="code_snippet">
-                <code  th:text="${c.code}">
-                </code>
-            </pre>
+        <pre id="code_snippet">
+            <code  th:text="${c.get('code')}">
+            </code>
+        </pre>
 
     </div>
 

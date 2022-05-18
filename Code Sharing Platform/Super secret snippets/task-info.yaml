@@ -641,6 +641,316 @@ files:
         }
     }
   learner_created: false
+- name: src/platform/web/CodeController.java
+  visible: true
+  text: |
+    package platform.web;
+
+    import org.springframework.stereotype.Controller;
+    import org.springframework.ui.Model;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.PathVariable;
+    import org.springframework.web.bind.annotation.PostMapping;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import platform.code.CodeService;
+
+    import java.util.ArrayList;
+    import java.util.List;
+    import java.util.UUID;
+    import java.util.stream.Collectors;
+
+    @Controller
+    @RequestMapping("/code")
+    public class CodeController {
+
+      private final CodeService codeService;
+
+      public CodeController(CodeService codeService) {
+        this.codeService = codeService;
+      }
+
+      @GetMapping("/{uuid}")
+      public String getCode(@PathVariable UUID id, Model model) {
+        model.addAttribute("title", "Code");
+        model.addAttribute("code", List.of(this.codeService.getCodeById(id)));
+        return "code";
+      }
+
+      @GetMapping("latest")
+      public String getLatestCode(Model model) {
+        model.addAttribute("title", "Latest");
+        model.addAttribute("code", this.codeService.getLatestCodeSnippets());
+        return "code";
+      }
+      @GetMapping("new")
+      public String newCode() {
+        return "newCode";
+      }
+
+      @PostMapping("new")
+      public String processNewCode() {
+        return "redirect:/code/new";
+      }
+    }
+  learner_created: true
+- name: src/platform/web/CodeResource.java
+  visible: true
+  text: |
+    package platform.web;
+
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.web.bind.annotation.*;
+    import platform.code.Code;
+    import platform.code.CodeService;
+
+    import java.util.UUID;
+
+    @RestController
+    @RequestMapping("/api/code")
+    public class CodeResource {
+
+      private final CodeService codeService;
+
+      public CodeResource(CodeService codeService) {
+        this.codeService = codeService;
+      }
+
+      @GetMapping("{id}")
+      public ResponseEntity<?> getCode(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(this.codeService.getCodeById(id));
+      }
+      @GetMapping("latest")
+      public ResponseEntity<?> getLatestCode() {
+        return ResponseEntity.ok(this.codeService.getLatestCodeSnippets());
+      }
+
+      @PostMapping("/new")
+      public ResponseEntity<?> submitCode(@RequestBody Code code) {
+        return ResponseEntity.ok(this.codeService.createNewCode(code));
+      }
+
+    }
+  learner_created: true
+- name: src/platform/code/CodeRepository.java
+  visible: true
+  text: |
+    package platform.code;
+
+    import org.springframework.data.jpa.repository.JpaRepository;
+
+    import java.util.List;
+    import java.util.UUID;
+
+    public interface CodeRepository extends JpaRepository<Code, UUID> {
+      List<Code> findTop10ByOrderByDateDesc();
+    }
+  learner_created: true
+- name: src/platform/code/CodeService.java
+  visible: true
+  text: |
+    package platform.code;
+
+    import org.springframework.stereotype.Service;
+
+    import java.util.List;
+    import java.util.Map;
+    import java.util.UUID;
+
+    @Service
+    public class CodeService {
+      private final CodeRepository codeRepository;
+
+      public CodeService(CodeRepository codeRepository) {
+        this.codeRepository = codeRepository;
+      }
+
+      public Code getCodeById(UUID id) {
+        return this.codeRepository.findById(id)
+            .orElseThrow(IllegalArgumentException::new);
+      }
+
+      public Map<String, String> createNewCode(Code code) {
+        var id = this.codeRepository
+            .save(code)
+            .getId();
+
+        return Map.of("id", id.toString());
+      }
+
+      public List<Code> getLatestCodeSnippets() {
+        return this.codeRepository.findTop10ByOrderByDateDesc();
+      }
+    }
+  learner_created: true
+- name: src/platform/code/Code.java
+  visible: true
+  text: |
+    package platform.code;
+
+    import com.fasterxml.jackson.annotation.JsonFormat;
+    import com.fasterxml.jackson.annotation.JsonIgnore;
+    import org.springframework.format.annotation.DateTimeFormat;
+
+    import javax.persistence.Entity;
+    import javax.persistence.GeneratedValue;
+    import javax.persistence.GenerationType;
+    import javax.persistence.Id;
+    import java.time.LocalDateTime;
+    import java.util.UUID;
+
+    @Entity
+    public class Code {
+
+      @Id
+      @GeneratedValue(strategy = GenerationType.AUTO)
+      private UUID id;
+      private String code;
+      @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss")
+      @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm:ss")
+      private LocalDateTime date;
+
+      public Code() {
+        this.date = LocalDateTime.now();
+      }
+
+      public Code(String code) {
+        this.code = code;
+        this.date = LocalDateTime.now();
+      }
+
+      @JsonIgnore
+      public UUID getId() {
+        return id;
+      }
+
+      public void setId(UUID id) {
+        this.id = id;
+      }
+
+      public String getCode() {
+        return code;
+      }
+
+      public void setCode(String code) {
+        this.code = code;
+      }
+
+      public LocalDateTime getDate() {
+        return this.date;
+      }
+
+      public void setDate(LocalDateTime date) {
+        this.date = date;
+      }
+    }
+  learner_created: true
+- name: src/resources/static/js/script.js
+  visible: true
+  text: |-
+    function send() {
+        let object = {
+            "code": document.getElementById("code_snippet").value
+        };
+
+        let json = JSON.stringify(object);
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", '/api/code/new', false)
+        xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        xhr.send(json);
+
+        if (xhr.status == 200) {
+            alert("Success!");
+        }
+    }
+  learner_created: true
+- name: src/resources/static/css/style.css
+  visible: true
+  text: |-
+    label,
+    textarea, pre {
+        font-size: .8rem;
+        letter-spacing: 1px;
+    }
+    textarea {
+        padding: 10px;
+        max-width: 100%;
+        line-height: 1.5;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-shadow: 1px 1px 1px #999;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    #load_date {
+        color: green;
+    }
+  learner_created: true
+- name: src/resources/templates/code.html
+  visible: true
+  text: |-
+    <!DOCTYPE html>
+    <html lang="en" xmlns:th="http://www.thymeleaf.org/">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" th:href="@{../../css/style.css}">
+        <title th:text="${title}">Code</title>
+    </head>
+    <body>
+        <div th:each="c : ${code}">
+            <span id="load_date" th:text="${#temporals.format(c.date, 'yyyy/MM/dd HH:mm:ss')}"></span>
+
+                <pre id="code_snippet">
+                    <code  th:text="${c.code}">
+                    </code>
+                </pre>
+
+        </div>
+
+
+        <script th:src="@{../../js/script.js}"></script>
+        <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+    </html>
+  learner_created: true
+- name: src/resources/templates/newCode.html
+  visible: true
+  text: |-
+    <!DOCTYPE html>
+    <html lang="en" xmlns:th="http://www.thymeleaf.org/">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" th:href="@{../../css/style.css}">
+        <link rel="stylesheet"
+              href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/styles/default.min.css">
+        <title>Create</title>
+    </head>
+    <body>
+        <form method="post">
+            <textarea id="code_snippet" rows="5" cols="33">
+                // write your code here
+            </textarea>
+            <button id="send_snippet" type="submit" onclick="send()">Submit</button>
+        </form>
+
+        <script th:src="@{../../js/script.js}"></script>
+        <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.2.1/build/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+    </html>
+  learner_created: true
+- name: src/platform/code/exceptions/CodeNotFoundException.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/11031#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Well done! You've finished the project. Select a new project on <a href="https://hyperskill.org/projects">JetBrains
+    Academy</a> to continue learning.
+  time: Wed, 18 May 2022 18:49:07 UTC
 record: -1

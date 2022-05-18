@@ -3,7 +3,7 @@ textarea, pre {
     font-size: .8rem;
     letter-spacing: 1px;
 }
-textarea, pre {
+textarea {
     padding: 10px;
     max-width: 100%;
     line-height: 1.5;

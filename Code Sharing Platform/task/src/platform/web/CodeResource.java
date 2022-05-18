@@ -2,8 +2,10 @@ package platform.web;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import platform.code.Code;
 import platform.code.CodeService;
+
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/code")
@@ -16,8 +18,9 @@ public class CodeResource {
   }
 
   @GetMapping("{id}")
-  public ResponseEntity<?> getCode(@PathVariable("id") long id) {
-    return ResponseEntity.ok(this.codeService.getCodeById(id));
+  public ResponseEntity<?> getCode(@PathVariable("id") UUID id) {
+    var snippet = this.codeService.getCodeByIdProxy(id);
+    return ResponseEntity.ok(snippet);
   }
   @GetMapping("latest")
   public ResponseEntity<?> getLatestCode() {
@@ -25,8 +28,8 @@ public class CodeResource {
   }
 
   @PostMapping("/new")
-  public ResponseEntity<?> submitCode(@RequestBody Code code) {
-    return ResponseEntity.ok(this.codeService.createNewCode(code));
+  public ResponseEntity<?> submitCode(@RequestBody Map<String, String> codeSnippet) {
+    return ResponseEntity.ok(this.codeService.createNewCode(codeSnippet));
   }
 
 }
